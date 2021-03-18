@@ -116,3 +116,5 @@ function myVis(data, us){
       .style("fill", function(d){return d;}); 
 
 }
+
+// add mouseleave to entire svg not just tooltip
