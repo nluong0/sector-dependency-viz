@@ -44,10 +44,9 @@ function myVis(data, us){
   
   const g = svg.append("g")
 
-  const tooltip = svg
+  const tooltip = svgContainer
     .append('div')
-    .attr('id', 'tooltip')
-    .text('please see me');
+    .attr('id', 'tooltip');
 
   // Function to find correct data row for boundaries
   function findSectorData(data, fipsFromBoundaries) {
@@ -79,9 +78,13 @@ function myVis(data, us){
   svg
   .selectAll(".county")
   .on("mouseover", function(d) {
+    console.log(this)
     var countyName = d.target.__data__.properties.name;
     console.log('countyName', countyName);
     let matchedRow = findSectorData(data, d.target.__data__.id);
+    if (!matchedRow) {
+      return;
+    }
     var stateName = matchedRow.State;
     console.log('stateName', stateName);
 
@@ -92,7 +95,7 @@ function myVis(data, us){
       .text(countyName);
     })
     .on('mouseleave', function(d) {
-      tooltip.style('display', 'none').text('');
+      // tooltip.style('display', 'none').text('');
     });
 
   // Create legend
