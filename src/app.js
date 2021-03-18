@@ -6,7 +6,7 @@ import { schemeGnBu } from 'd3';
 
 Promise.all([
   d3.json("https://unpkg.com/us-atlas@3/counties-10m.json"),
-  d3.csv("../data/sector.csv")
+  d3.csv("data/sector.csv")
 ]).then(results => {
   console.log("Data imported.")
   const [us, data] = results;
