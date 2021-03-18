@@ -2,6 +2,7 @@ import {select} from 'd3-selection';
 import './main.css';
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
+import { schemeGnBu } from 'd3';
 
 Promise.all([
   d3.json("https://unpkg.com/us-atlas@3/counties-10m.json"),
@@ -30,14 +31,23 @@ function myVis(data, us){
   .domain(["Farming", "Government", "Manufacturing", "Mining", "Nonspecialized", "Recreation"])
   .range(['#A89938', '#E49B25', '#74AA90', '#3D405B', '#E6DFB3', '#E07A5F']);
 
-  // Create SVG
-  let svg = d3.select("#map")
-  .append("svg")
-  .attr("width", width)
-  .attr("height", height)
+  // Define SVG elements
+  const svgContainer = select('#map')
+    .append('div')
+    .style('position', 'relative');
   
-  // Define SVG container
-  let g = svg.append("g")
+  const svg = svgContainer
+  .append('svg')
+  .attr('height', height)
+  .attr('width', width)
+  .attr('transform', `translate(${margin.left}, ${margin.top})`);
+  
+  const g = svg.append("g")
+
+  const tooltip = svg
+    .append('div')
+    .attr('id', 'tooltip')
+    .text('please see me');
 
   // Add counties and populate map
   g.attr("class", "county").selectAll("path")
@@ -53,38 +63,41 @@ function myVis(data, us){
             matchedRow = data.find((row) => {
                 return row['id'] === fipsFromBoundaries.slice(1)
             })
-            console.log('fipsFromBoundaries', fipsFromBoundaries)
-            console.log('matchedRow', matchedRow)
         }
         if (typeof matchedRow !== 'undefined') {
             return color(matchedRow.all_sector_dependencies)
         }
       ;})
       .attr("stroke", "#EEEEEE")
-  
-//   g.attr("fill", (data) => {
-//     let fips = data['id']
-//     let county = us.find((county) => {
-//         return county['fips'] === fips
-//     })
-//     let percentage = county['bachelorsOrHigher']
-//     if (percentage <= 15){
-//         return 'tomato'
-//     }else if (percentage <= 30){
-//         return 'orange'
-//     } else if (percentage <= 45){
-//         return 'lightgreen'
-//     } else {
-//         return 'limegreen'
-//     }
-//   })
-      
-  // Don't know what this does
-  // g.append("path")
-  //     .datum(topojson.mesh(us, us.objects.states, (a, b) => a !== b))
-  //     .attr("fill", "none")
-  //     .attr("stroke", "white")
-  //     .attr("d", path);
+
+  // Create tooltip
+  svg
+  .selectAll(".county")
+  .on("mouseover", function(d) {
+    var countyName = d.target.__data__.properties.name;
+    console.log('countyName', countyName);
+
+    let fipsFromBoundaries = d.target.__data__.id
+    var matchedRow = data.find((row) => {
+        return row['id'] === fipsFromBoundaries
+    });
+    if (fipsFromBoundaries.charAt(0) === '0') {
+        matchedRow = data.find((row) => {
+            return row['id'] === fipsFromBoundaries.slice(1)
+          })
+    };
+    var stateName = matchedRow.State;
+    console.log('stateName', stateName);
+
+    tooltip
+      .style('display', 'box')
+      .style('left', `${d.offsetX}px`)
+      .style('top', `${d.offsetY}px`)
+      .text(countyName);
+    })
+    .on('mouseleave', function(d) {
+      tooltip.style('display', 'none').text('');
+    });
 
   var legend = svg.selectAll('g.legendEntry')
       .data(color.range())

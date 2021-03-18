@@ -77,6 +77,7 @@ function myVis(data) {
     .attr('class', 'x-axis')
     .attr('transform', `translate(0, ${plotHeight})`);
   const yAxis = svg.append('g').attr('class', 'y-axis');
+  
   svg
     .append('g')
     .attr('class', 'x-label')
