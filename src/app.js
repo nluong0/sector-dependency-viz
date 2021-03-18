@@ -49,21 +49,26 @@ function myVis(data, us){
     .attr('id', 'tooltip')
     .text('please see me');
 
+  // Function to find correct data row for boundaries
+  function findSectorData(data, fipsFromBoundaries) {
+    var matchedRow = data.find((row) => {
+      return row['id'] === fipsFromBoundaries
+    })
+    if (fipsFromBoundaries.charAt(0) === '0') {
+      matchedRow = data.find((row) => {
+          return row['id'] === fipsFromBoundaries.slice(1)
+      })
+  }
+    return matchedRow;
+  }
+
   // Add counties and populate map
   g.attr("class", "county").selectAll("path")
       .data(topojson.feature(us, us.objects.counties).features)
       .join("path")
       .attr("d", path)
       .attr("fill", function(d) { 
-        let fipsFromBoundaries = d.id
-        var matchedRow = data.find((row) => {
-            return row['id'] === fipsFromBoundaries
-        })
-        if (fipsFromBoundaries.charAt(0) === '0') {
-            matchedRow = data.find((row) => {
-                return row['id'] === fipsFromBoundaries.slice(1)
-            })
-        }
+        let matchedRow = findSectorData(data, d.id)
         if (typeof matchedRow !== 'undefined') {
             return color(matchedRow.all_sector_dependencies)
         }
@@ -76,16 +81,7 @@ function myVis(data, us){
   .on("mouseover", function(d) {
     var countyName = d.target.__data__.properties.name;
     console.log('countyName', countyName);
-
-    let fipsFromBoundaries = d.target.__data__.id
-    var matchedRow = data.find((row) => {
-        return row['id'] === fipsFromBoundaries
-    });
-    if (fipsFromBoundaries.charAt(0) === '0') {
-        matchedRow = data.find((row) => {
-            return row['id'] === fipsFromBoundaries.slice(1)
-          })
-    };
+    let matchedRow = findSectorData(data, d.target.__data__.id);
     var stateName = matchedRow.State;
     console.log('stateName', stateName);
 
@@ -99,6 +95,7 @@ function myVis(data, us){
       tooltip.style('display', 'none').text('');
     });
 
+  // Create legend
   var legend = svg.selectAll('g.legendEntry')
       .data(color.range())
       .enter()
