@@ -2,7 +2,7 @@ import {select} from 'd3-selection';
 import './main.css';
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
-import { count, schemeGnBu } from 'd3';
+import { count, dsvFormat, schemeGnBu } from 'd3';
 
 Promise.all([
   d3.json("https://unpkg.com/us-atlas@3/counties-10m.json"),
@@ -59,29 +59,51 @@ function myVis(data, us){
     return matchedRow;
   }
 
-  // Add options to dropdown
-  d3.select("#selectButton")
-    .selectAll('myOptions')
-    .data(['All'].concat(uniqueSectors))
-    .enter()
-    .append('option')
-    .text(function (d) { return d; })
-    .attr("value", function (d) { return d; })
+  // // Add options to dropdown
+  // d3.select("#selectButton")
+  //   .selectAll('myOptions')
+  //   .data(['All'].concat(uniqueSectors))
+  //   .enter()
+  //   .append('option')
+  //   .text(function (d) { return d; })
+  //   .attr("value", function (d) { return d; })
 
-  // Manage updates with dropdown selections
-  d3.select('#selectButton')
+  // // Manage updates with dropdown selections
+  // d3.select('#selectButton')
+  //   .on("change", function(d) {
+  //     // Grab selected option
+  //     var selectedSector = d3.select(this).property("value")
+  //     // Filter data according to selected option
+  //     var dataFilter = data.filter(function(d){return d.all_sector_dependencies==selectedSector})
+  //     if (selectedSector === 'All') {
+  //       dataFilter = data
+  //     }
+  //     // Render plot with filtered data
+  //     renderMap(dataFilter)
+  //     renderScatter(dataFilter, true)
+  // });
+  
+  d3.selectAll('.checkbox')
     .on("change", function(d) {
-      // Grab selected option
-      var selectedSector = d3.select(this).property("value")
       // Filter data according to selected option
-      var dataFilter = data.filter(function(d){return d.all_sector_dependencies==selectedSector})
-      if (selectedSector === 'All') {
-        dataFilter = data
-      }
-      // Render plot with filtered data
+      var dataFilter = filterData()
       renderMap(dataFilter)
       renderScatter(dataFilter, true)
   });
+
+  function filterData()  {
+    var allSelectedSectors = new Array();
+    d3.selectAll('.checkbox').each(function(d) {
+      const box = d3.select(this);
+      if (box.property("checked")) {
+        allSelectedSectors.push(box.property('value'))
+      }
+    })
+    var dataFilter = data.filter(function(d) {
+      return allSelectedSectors.includes(d.all_sector_dependencies)
+    })
+    return dataFilter
+  }
 
   renderMap(data);
   renderScatter(data, false);
@@ -134,9 +156,7 @@ function myVis(data, us){
           .join("path")
           .attr("fill", "white")
           .attr("stroke", "black");
-  
-      console.log('it', (value + "").split("/\n/"))
-      
+        
       var text = g
           .selectAll("text")
           .data([null])
@@ -222,10 +242,8 @@ function myVis(data, us){
   function renderScatter(data, update) {
 
     // Constraints for scatter
-    //const height = 400;
-    //const width = 500;
     const margin = {top: 10, left: 120, right: 10, bottom: 50};
-    let width = 1300 - margin.left - margin.right
+    let width = 1500 - margin.left - margin.right
     let height = 600 - margin.top - margin.bottom;
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
@@ -243,7 +261,6 @@ function myVis(data, us){
 
     // Get all possible variables
     var columns = Object.keys(data[0]);
-    console.log(columns)
     columns = columns.filter(val => 
       !['id', 'all_sector_dependencies', 'State', 'County'].includes(val)
     );
@@ -256,7 +273,7 @@ function myVis(data, us){
       .style('display', 'flex')
       .style('flex-direction', 'column')
       .selectAll('.drop-down')
-      .data(['xCol', 'yCol'])
+      .data(['X Axis', 'Y Axis'])
       .join('div');
     dropdowns
       .append('div')
@@ -266,7 +283,7 @@ function myVis(data, us){
     dropdowns
       .append('select')
       .on('change', (event, x) => {
-        if (x === 'xCol') {
+        if (x === 'X Axis') {
           xCol = event.target.value;
         } else {
           yCol = event.target.value;
@@ -277,7 +294,7 @@ function myVis(data, us){
       .data(dim => columns.map(key => ({key, dim})))
       .join('option')
       .text(d => d.key)
-      .property('selected', d => d.key === (d.dim === 'xCol' ? xCol : yCol));
+      .property('selected', d => d.key === (d.dim === 'X Axis' ? xCol : yCol));
   
     // Define SVG Elements and axes
     const svgContainer = select('#scatter')
@@ -300,7 +317,7 @@ function myVis(data, us){
     .append('div')
     .attr('id', 'scatter-tooltip');
     
-    // Adjust SVG place on page
+    // Adjust axes
     svg
       .append('g')
       .attr('class', 'x-label')
@@ -308,7 +325,7 @@ function myVis(data, us){
       .append('text')
       .text(xCol)
       .attr('text-anchor', 'middle')
-  
+      .style('font', '14px Avenir')
     svg
       .append('g')
       .attr('class', 'y-label')
@@ -316,23 +333,25 @@ function myVis(data, us){
       .append('text')
       .text(yCol)
       .attr('transform', `rotate(-90)`)
-      .attr('text-anchor', 'middle');
+      .attr('text-anchor', 'middle')
+      .style('font', '14px Avenir');
 
-  
     renderPlot();
   
     function renderPlot() {
 
+      // Define transition
       const t = d3.transition().duration();
 
+      // Define scales
       const xScale = d3.scaleLinear()
         .domain(d3.extent(data, d => d[xCol]))
         .range([0, plotWidth]);
-
       const yScale = d3.scaleLinear()
         .domain(d3.extent(data, d => d[yCol]))
         .range([plotHeight, 0]);
 
+      // Populate scatterplot and update with dropdown
       svg
         .selectAll('circle')
         .data(data)
@@ -342,7 +361,6 @@ function myVis(data, us){
               .append('circle')
               .attr('cx', d => xScale(d[xCol]))
               .attr('cy', d => yScale(d[yCol])),
-  
           update =>
             update.call(el =>
               el
@@ -355,23 +373,6 @@ function myVis(data, us){
         .style('opacity', 0.5)
         .style('stroke', 'white')
         .attr('r', 3)
-        .on('mouseenter', function(d, x) {
-          // tooltip
-          //   .style('display', 'block')
-          //   .style('left', `${d.offsetX}px`)
-          //   .style('top', `${d.offsetY}px`)
-          //   .text('just see me');
-          tooltip.call(
-            callout,
-            'just see me'
-          )
-          .style('left', `${d.offsetX}px`)
-          .style('top', `${d.offsetY}px`)
-        })
-        .on('mouseleave', function(d, x) {
-          //tooltip.style('display', 'none').text('');
-          tooltip.call(callout, null)
-        });
       
       xAxis.call(d3.axisBottom(xScale));
       yAxis.call(d3.axisLeft(yScale));
@@ -382,4 +383,3 @@ function myVis(data, us){
   }
 
 }
-
