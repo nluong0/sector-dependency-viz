@@ -28,8 +28,8 @@ function myVis(data, us){
 
   // Set colors
   const color = d3.scaleOrdinal()
-  .domain(["Farming", "Government", "Manufacturing", "Mining", "Nonspecialized", "Recreation"])
-  .range(['#A89938', '#E49B25', '#74AA90', '#3D405B', '#E6DFB3', '#E07A5F']);
+    .domain(["Farming", "Government", "Manufacturing", "Mining", "Nonspecialized", "Recreation"])
+    .range(['#A89938', '#E49B25', '#74AA90', '#3D405B', '#E6DFB3', '#E07A5F']);
 
   // Define SVG elements
   const svgContainer = select('#map')
@@ -37,13 +37,11 @@ function myVis(data, us){
     .style('position', 'relative');
   
   const svg = svgContainer
-  .append('svg')
-  .attr('height', height)
-  .attr('width', width)
-  .attr('transform', `translate(${margin.left}, ${margin.top})`);
+    .append('svg')
+    .attr('height', height)
+    .attr('width', width)
+    .attr('transform', `translate(${margin.left}, ${margin.top})`);
   
-  const g = svg.append("g")
-
   const tooltip = svgContainer
     .append('div')
     .attr('id', 'tooltip');
@@ -62,40 +60,143 @@ function myVis(data, us){
   }
 
   // Add counties and populate map
-  g.attr("class", "county").selectAll("path")
-      .data(topojson.feature(us, us.objects.counties).features)
-      .join("path")
-      .attr("d", path)
-      .attr("fill", function(d) { 
-        let matchedRow = findSectorData(data, d.id)
-        if (typeof matchedRow !== 'undefined') {
-            return color(matchedRow.all_sector_dependencies)
-        }
-      ;})
-      .attr("stroke", "#EEEEEE")
+  svg
+    .append("g")
+    .attr("class", "county")
+    .selectAll("path")
+    .data(topojson.feature(us, us.objects.counties).features)
+    .join("path")
+    .attr("d", path)
+    .style("fill", function(d) { 
+      let matchedRow = findSectorData(data, d.id)
+      if (typeof matchedRow !== 'undefined') {
+          return color(matchedRow.all_sector_dependencies)
+      }
+    ;})
+
+  // Setting stroke
+  // Counties
+  svg
+    .selectAll(".county")
+    .attr("stroke", "none");
+  // States
+  // svg
+  //   .select("g")
+  //   .append("path")
+  //   .datum(topojson.mesh(us, us.objects.states, (a, b) => a !== b))
+  //   .attr("fill", "none")
+  //   .attr("stroke", "black")
+  //   .attr("d", path);
+
+  // Format tooltip
+  function callout(g, value) {
+    if (!value) return g.style("display", "none");
+
+    g.style("display", null)
+        .style("pointer-events", "none")
+        .style("font", "10px sans-serif");
+
+    var path = g
+        .selectAll("path")
+        .data([null])
+        .join("path")
+        .attr("fill", "white")
+        .attr("stroke", "black");
+
+    var text = g
+        .selectAll("text")
+        .data([null])
+        .join("text")
+        .call(function(text) {
+            text.selectAll("tspan")
+                .data((value + "").split("/\n/"))
+                .join("tspan")
+                .attr("x", 0)
+                .attr("y", function(d, i) {
+                    return i * 1.1 + "em";
+                })
+                .style("font-weight", function(_, i) {
+                    return i ? null : "bold";
+                })
+                .text(function(d) {
+                    return d;
+                });
+        });
+
+    var x = text.node().getBBox().x;
+    var y = text.node().getBBox().y;
+    var w = text.node().getBBox().width;
+    var h = text.node().getBBox().height;
+
+    text.attr(
+        "transform",
+        "translate(" + -w / 2 + "," + (15 - y) + ")"
+    );
+    path.attr(
+        "d",
+        "M" +
+            (-w / 2 - 10) +
+            ",5H-5l5,-5l5,5H" +
+            (w / 2 + 10) +
+            "v" +
+            (h + 20) +
+            "h-" +
+            (w + 20) +
+            "z"
+    );
+  }
 
   // Create tooltip
   svg
-  .selectAll(".county")
-  .on("mouseover", function(d) {
-    console.log(this)
-    var countyName = d.target.__data__.properties.name;
-    console.log('countyName', countyName);
-    let matchedRow = findSectorData(data, d.target.__data__.id);
-    if (!matchedRow) {
-      return;
-    }
-    var stateName = matchedRow.State;
-    console.log('stateName', stateName);
+    .selectAll(".county")
+    .on("mouseover", function(d) {
+      console.log('td.target', d.target)
+      console.log('d.target.__data__.id', d.target.__data__.id)
+      //let countyName = d.target.__data__.properties.name;
+      let matchedRow = findSectorData(data, d.target.__data__.id);
+      var displayText = displayText = 'No Data';
 
-    tooltip
-      .style('display', 'box')
-      .style('left', `${d.offsetX}px`)
-      .style('top', `${d.offsetY}px`)
-      .text(countyName);
+      if (matchedRow) {
+        var countyName = matchedRow.County;
+        var stateName = matchedRow.State;
+        displayText = countyName + ', ' + stateName;
+      };
+
+      // tooltip
+      //   .style('display', 'box')
+      //   .style('left', `${d.offsetX}px`)
+      //   .style('top', `${d.offsetY}px`)
+      //   .text(displayText);
+
+      // tooltip.call(
+      //   callout,
+      //   countyName + "/\n/" + stateName
+      // );
+      
+      d3.select(d.target)
+        .attr("stroke", "red")
+        .raise();
+
     })
-    .on('mouseleave', function(d) {
-      // tooltip.style('display', 'none').text('');
+    // .on("mousemove", function() {
+    //   tooltip.attr(
+    //       "transform",
+    //       "translate(" +
+    //           d3.mouse(this)[0] +
+    //           "," +
+    //           d3.mouse(this)[1] +
+    //           ")"
+    //   );
+    // })
+    .on('mouseout', function(d) {
+      // tooltip
+      //   .style('display', 'none')
+      //   .text('');
+      //tooltip.call(callout, null)
+
+      d3.select(d.target)
+        .attr("stroke", "none")
+        .lower();
     });
 
   // Create legend
