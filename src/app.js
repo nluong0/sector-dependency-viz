@@ -19,7 +19,7 @@ function myVis(data, us){
   console.log('data', data);
   console.log('us', us);
 
-  // Set aesthetic constants
+  // Set constraints for map
   var margin = {top: 0, right: 0, bottom: 0, left: 0}
   let width = 960 - margin.left - margin.right
   let height = 600 - margin.top - margin.bottom;
@@ -78,12 +78,14 @@ function myVis(data, us){
         dataFilter = data
       }
       // Render plot with filtered data
-      renderPlot(dataFilter)
+      renderMap(dataFilter)
+      renderScatter(dataFilter, true)
   });
 
-  renderPlot(data);
+  renderMap(data);
+  renderScatter(data, false);
 
-  function renderPlot(data) {
+  function renderMap(data) {
 
     // Add counties and populate map
     svg
@@ -213,5 +215,155 @@ function myVis(data, us){
             return uniqueSectors[i]
         });
   }
+
+
+  function renderScatter(data, update) {
+
+    // Constraints for scatter
+    const height = 500;
+    const width = 400;
+    const margin = {top: 10, left: 50, right: 10, bottom: 50};
+    const plotWidth = width - margin.left - margin.right;
+    const plotHeight = height - margin.top - margin.bottom;
+
+    // Remove elements and redraw if updating for sector
+    if (update) {
+      d3.selectAll("#scatter")
+      .select("div")
+      .remove();
+
+    d3.selectAll("#scatter")
+      .select("svg")
+      .remove();
+    }
+
+    // Get all possible variables
+    const columns = Object.keys(data[0]);
+    let xCol = columns[4];
+    let yCol = columns[6];
+  
+    // Create dropdowns
+    const dropdowns = select('#scatter')
+      .append('div')
+      .attr('id', 'dropdowns')
+      .style('display', 'flex')
+      .style('flex-direction', 'column')
+      .selectAll('.drop-down')
+      .data(['Variable 1', 'Variable 2'])
+      .join('div');
+  
+    // Render plot with selections from dropdown
+    dropdowns.append('div').text(d => d);
+    dropdowns
+      .append('select')
+      .on('change', (event, x) => {
+        if (x === 'xCol') {
+          xCol = event.target.value;
+        } else {
+          yCol = event.target.value;
+        }
+        renderPlot();
+      })
+      .selectAll('option')
+      .data(dim => columns.map(key => ({key, dim})))
+      .join('option')
+      .text(d => d.key)
+      .property('selected', d => d.key === (d.dim === 'xCol' ? xCol : yCol));
+  
+    // Define SVG Elements and axes
+    const svgContainer = select('#scatter')
+      .select('div')
+      .attr('id', 'svgContainer')
+      .style('position', 'relative');  
+    const svg = svgContainer
+      .append('svg')
+      .attr('id', 'svg')
+      .attr('height', height)
+      .attr('width', width)
+      .append('g')
+      .attr('transform', `translate(${margin.left}, ${margin.top})`);
+    const xAxis = svg
+      .append('g')
+      .attr('class', 'x-axis')
+      .attr('transform', `translate(0, ${plotHeight})`);
+    const yAxis = svg.append('g').attr('class', 'y-axis');
+    const tooltip = svgContainer
+    .append('div')
+    .attr('id', 'scatter-tooltip');
+    
+    // Adjust SVG place on page
+    svg
+      .append('g')
+      .attr('class', 'x-label')
+      .attr('transform', `translate(${width / 2}, ${height - 20})`)
+      .append('text')
+      .text(xCol)
+      .attr('text-anchor', 'middle');
+  
+    svg
+      .append('g')
+      .attr('class', 'y-label')
+      .attr('transform', `translate(${-margin.left / 2}, ${plotHeight / 2})`)
+      .append('text')
+      .text(yCol)
+      .attr('transform', `rotate(-90)`)
+      .attr('text-anchor', 'middle');
+
+  
+    renderPlot();
+  
+    function renderPlot() {
+
+      const t = d3.transition().duration();
+
+      const xScale = d3.scaleLinear()
+        .domain(d3.extent(data, d => d[xCol]))
+        .range([0, plotWidth]);
+
+      const yScale = d3.scaleLinear()
+        .domain(d3.extent(data, d => d[yCol]))
+        .range([plotHeight, 0]);
+
+      svg
+        .selectAll('circle')
+        .data(data)
+        .join(
+          enter =>
+            enter
+              .append('circle')
+              .attr('cx', d => xScale(d[xCol]))
+              .attr('cy', d => yScale(d[yCol])),
+  
+          update =>
+            update.call(el =>
+              el
+                .transition(t)
+                .attr('cx', d => xScale(d[xCol]))
+                .attr('cy', d => yScale(d[yCol])),
+            ),
+        )
+
+        .attr('fill', (_, idx) => d3.interpolateTurbo(idx / 406))
+        .attr('r', 5)
+
+        .on('mouseenter', function(d, x) {
+          tooltip
+            .style('display', 'block')
+            .style('left', `${d.offsetX}px`)
+            .style('top', `${d.offsetY}px`)
+            .text('just see me');
+        })
+        .on('mouseleave', function(d, x) {
+          tooltip.style('display', 'none').text('');
+        });
+
+      xAxis.call(d3.axisBottom(xScale));
+      yAxis.call(d3.axisLeft(yScale));
+  
+      select('.x-label text').text(xCol);
+      select('.y-label text').text(yCol);
+    }
+  }
+
 }
 
