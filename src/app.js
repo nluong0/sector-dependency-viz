@@ -122,28 +122,6 @@ function myVis(data, us){
                     return d;
                 });
         });
-
-    var x = text.node().getBBox().x;
-    var y = text.node().getBBox().y;
-    var w = text.node().getBBox().width;
-    var h = text.node().getBBox().height;
-
-    text.attr(
-        "transform",
-        "translate(" + -w / 2 + "," + (15 - y) + ")"
-    );
-    path.attr(
-        "d",
-        "M" +
-            (-w / 2 - 10) +
-            ",5H-5l5,-5l5,5H" +
-            (w / 2 + 10) +
-            "v" +
-            (h + 20) +
-            "h-" +
-            (w + 20) +
-            "z"
-    );
   }
 
   // Create tooltip
@@ -162,37 +140,20 @@ function myVis(data, us){
         displayText = countyName + ', ' + stateName;
       };
 
-      // tooltip
-      //   .style('display', 'box')
-      //   .style('left', `${d.offsetX}px`)
-      //   .style('top', `${d.offsetY}px`)
-      //   .text(displayText);
-
-      // tooltip.call(
-      //   callout,
-      //   countyName + "/\n/" + stateName
-      // );
+      tooltip.call(
+        callout,
+        countyName + ", " + stateName
+      )
+      .style('left', `${d.offsetX}px`)
+      .style('top', `${d.offsetY}px`);
       
       d3.select(d.target)
-        .attr("stroke", "red")
+        .attr("stroke", "black")
         .raise();
 
     })
-    // .on("mousemove", function() {
-    //   tooltip.attr(
-    //       "transform",
-    //       "translate(" +
-    //           d3.mouse(this)[0] +
-    //           "," +
-    //           d3.mouse(this)[1] +
-    //           ")"
-    //   );
-    // })
     .on('mouseout', function(d) {
-      // tooltip
-      //   .style('display', 'none')
-      //   .text('');
-      //tooltip.call(callout, null)
+      tooltip.call(callout, null)
 
       d3.select(d.target)
         .attr("stroke", "none")
