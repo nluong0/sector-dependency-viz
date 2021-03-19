@@ -189,21 +189,29 @@ function myVis(data, us){
       });
   
     // Create legend
-    var legend = svg.selectAll('g.legendEntry')
+    var legend = svg.selectAll('g.legend')
         .data(color.range())
         .enter()
-        .append('g').attr('class', 'legendEntry')
+        .append('g').attr('class', 'legend')
         .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
-    
+
     legend
         .append('rect')
-        .attr("x", width - 120)
+        .attr("x", width - 150)
         .attr("y", height - 200)
         .attr("width", 10)
         .attr("height", 10)
-        .style("stroke", "black")
-        .style("stroke-width", 1)
+        .style("stroke", 'none')
         .style("fill", function(d){return d;}); 
+    
+    legend
+        .append('text')
+        .attr("x", width - 130) 
+        .attr("y", height - 200)
+        .attr("dy", "0.9em")
+        .text(function(d, i) {
+            return uniqueSectors[i]
+        });
   }
 }
 
