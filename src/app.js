@@ -2,7 +2,7 @@ import {select} from 'd3-selection';
 import './main.css';
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
-import { schemeGnBu } from 'd3';
+import { count, schemeGnBu } from 'd3';
 
 Promise.all([
   d3.json("https://unpkg.com/us-atlas@3/counties-10m.json"),
@@ -43,7 +43,8 @@ function myVis(data, us){
     .attr('transform', `translate(${margin.left}, ${margin.top})`);
   const tooltip = svgContainer
     .append('div')
-    .attr('id', 'tooltip');
+    .attr('id', 'tooltip')
+    .style('display', 'none');
 
   // Function to find correct data row for boundaries
   function findSectorData(data, fipsFromBoundaries) {
@@ -125,8 +126,7 @@ function myVis(data, us){
       if (!value) return g.style("display", "none");
   
       g.style("display", null)
-          .style("pointer-events", "none")
-          .style("font", "10px sans-serif");
+          .style("font", "10px Avenir");
   
       var path = g
           .selectAll("path")
@@ -135,6 +135,8 @@ function myVis(data, us){
           .attr("fill", "white")
           .attr("stroke", "black");
   
+      console.log('it', (value + "").split("/\n/"))
+      
       var text = g
           .selectAll("text")
           .data([null])
@@ -145,7 +147,7 @@ function myVis(data, us){
                   .join("tspan")
                   .attr("x", 0)
                   .attr("y", function(d, i) {
-                      return i * 1.1 + "em";
+                     return i * 2 + "em";
                   })
                   .style("font-weight", function(_, i) {
                       return i ? null : "bold";
@@ -167,7 +169,8 @@ function myVis(data, us){
         if (matchedRow) {
           var countyName = matchedRow.County;
           var stateName = matchedRow.State;
-          displayText = countyName + ', ' + stateName;
+          var sector = matchedRow.all_sector_dependencies;
+          displayText = sector + "/\n/" + ' ' + countyName + ', ' + stateName;
         };
   
         tooltip.call(
@@ -216,13 +219,12 @@ function myVis(data, us){
         });
   }
 
-
   function renderScatter(data, update) {
 
     // Constraints for scatter
-    const height = 500;
-    const width = 400;
-    const margin = {top: 10, left: 50, right: 10, bottom: 50};
+    const height = 400;
+    const width = 500;
+    const margin = {top: 10, left: 120, right: 10, bottom: 50};
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
 
@@ -239,11 +241,12 @@ function myVis(data, us){
 
     // Get all possible variables
     var columns = Object.keys(data[0]);
+    console.log(columns)
     columns = columns.filter(val => 
       !['id', 'all_sector_dependencies', 'State', 'County'].includes(val)
     );
-    let xCol = columns[3];
-    let yCol = columns[9];
+    let xCol = columns[18]; // Set default to Median Income
+    let yCol = columns[8]; // Set default to Percent Less than High School
   
     // Create dropdowns
     const dropdowns = select('#scatter')
@@ -351,14 +354,21 @@ function myVis(data, us){
         .style('stroke', 'white')
         .attr('r', 3)
         .on('mouseenter', function(d, x) {
-          tooltip
-            .style('display', 'block')
-            .style('left', `${d.offsetX}px`)
-            .style('top', `${d.offsetY}px`)
-            .text('just see me');
+          // tooltip
+          //   .style('display', 'block')
+          //   .style('left', `${d.offsetX}px`)
+          //   .style('top', `${d.offsetY}px`)
+          //   .text('just see me');
+          tooltip.call(
+            callout,
+            'just see me'
+          )
+          .style('left', `${d.offsetX}px`)
+          .style('top', `${d.offsetY}px`)
         })
         .on('mouseleave', function(d, x) {
-          tooltip.style('display', 'none').text('');
+          //tooltip.style('display', 'none').text('');
+          tooltip.call(callout, null)
         });
       
       xAxis.call(d3.axisBottom(xScale));
