@@ -101,7 +101,7 @@ function myVis(data, us){
           return color(matchedRow.all_sector_dependencies)
       }
       else {
-        return "#E0E0E0"
+        return "#C8C8C8"
       }
     ;}
     )
@@ -238,22 +238,26 @@ function myVis(data, us){
     }
 
     // Get all possible variables
-    const columns = Object.keys(data[0]);
-    let xCol = columns[4];
-    let yCol = columns[6];
+    var columns = Object.keys(data[0]);
+    columns = columns.filter(val => 
+      !['id', 'all_sector_dependencies', 'State', 'County'].includes(val)
+    );
+    let xCol = columns[3];
+    let yCol = columns[9];
   
     // Create dropdowns
     const dropdowns = select('#scatter')
       .append('div')
-      .attr('id', 'dropdowns')
       .style('display', 'flex')
       .style('flex-direction', 'column')
       .selectAll('.drop-down')
-      .data(['Variable 1', 'Variable 2'])
+      .data(['xCol', 'yCol'])
       .join('div');
+    dropdowns
+      .append('div')
+      .text(d => d);
   
     // Render plot with selections from dropdown
-    dropdowns.append('div').text(d => d);
     dropdowns
       .append('select')
       .on('change', (event, x) => {
@@ -342,10 +346,10 @@ function myVis(data, us){
                 .attr('cy', d => yScale(d[yCol])),
             ),
         )
-
-        .attr('fill', (_, idx) => d3.interpolateTurbo(idx / 406))
-        .attr('r', 5)
-
+        .style('fill', '#6e4555')
+        .style('opacity', 0.5)
+        .style('stroke', 'white')
+        .attr('r', 3)
         .on('mouseenter', function(d, x) {
           tooltip
             .style('display', 'block')
@@ -356,7 +360,7 @@ function myVis(data, us){
         .on('mouseleave', function(d, x) {
           tooltip.style('display', 'none').text('');
         });
-
+      
       xAxis.call(d3.axisBottom(xScale));
       yAxis.call(d3.axisLeft(yScale));
   
