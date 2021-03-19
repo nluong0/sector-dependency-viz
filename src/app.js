@@ -222,9 +222,11 @@ function myVis(data, us){
   function renderScatter(data, update) {
 
     // Constraints for scatter
-    const height = 400;
-    const width = 500;
+    //const height = 400;
+    //const width = 500;
     const margin = {top: 10, left: 120, right: 10, bottom: 50};
+    let width = 1300 - margin.left - margin.right
+    let height = 600 - margin.top - margin.bottom;
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
 
@@ -305,7 +307,7 @@ function myVis(data, us){
       .attr('transform', `translate(${width / 2}, ${height - 20})`)
       .append('text')
       .text(xCol)
-      .attr('text-anchor', 'middle');
+      .attr('text-anchor', 'middle')
   
     svg
       .append('g')
