@@ -285,10 +285,10 @@ function myVis(data, us){
     d3.select('#scatter')
       .append('div')
       .append('p')
-      .text('This scatterplot shows the relationship \
-            in your choice of variables. Selecting different \
-            combinations of sectors from the map above will filter \
-            this chart to only display data points for those counties.')
+      .text('Explore the relationship in your choice of variables here. \
+            Selecting different combinations of sectors from the map \
+            above will filter this plot to display only data points \
+            for those counties.')
     
     // Adjust axes
     svg
