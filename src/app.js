@@ -59,30 +59,6 @@ function myVis(data, us){
     return matchedRow;
   }
 
-  // // Add options to dropdown
-  // d3.select("#selectButton")
-  //   .selectAll('myOptions')
-  //   .data(['All'].concat(uniqueSectors))
-  //   .enter()
-  //   .append('option')
-  //   .text(function (d) { return d; })
-  //   .attr("value", function (d) { return d; })
-
-  // // Manage updates with dropdown selections
-  // d3.select('#selectButton')
-  //   .on("change", function(d) {
-  //     // Grab selected option
-  //     var selectedSector = d3.select(this).property("value")
-  //     // Filter data according to selected option
-  //     var dataFilter = data.filter(function(d){return d.all_sector_dependencies==selectedSector})
-  //     if (selectedSector === 'All') {
-  //       dataFilter = data
-  //     }
-  //     // Render plot with filtered data
-  //     renderMap(dataFilter)
-  //     renderScatter(dataFilter, true)
-  // });
-  
   d3.selectAll('.checkbox')
     .on("change", function(d) {
       // Filter data according to selected option
@@ -130,18 +106,9 @@ function myVis(data, us){
     )
 
     // Setting stroke
-    // Counties
     svg
       .selectAll(".county")
-      .attr("stroke", "none");
-    // States
-    // svg
-    //   .select("g")
-    //   .append("path")
-    //   .datum(topojson.mesh(us, us.objects.states, (a, b) => a !== b))
-    //   .attr("fill", "none")
-    //   .attr("stroke", "black")
-    //   .attr("d", path);
+      .attr("stroke", "white");
 
     // Format tooltip
     function callout(g, value) {
@@ -182,10 +149,14 @@ function myVis(data, us){
     svg
       .selectAll(".county")
       .on("mouseover", function(d) {
-  
+
+        console.log('this', this)
+        console.log('d.target.__data__', d.target.__data__)
+        console.log('d.target.__data__.id', d.target.__data__.id)
+
         let matchedRow = findSectorData(data, d.target.__data__.id);
         var displayText = 'No Data';
-  
+    
         if (matchedRow) {
           var countyName = matchedRow.County;
           var stateName = matchedRow.State;
@@ -243,8 +214,8 @@ function myVis(data, us){
 
     // Constraints for scatter
     const margin = {top: 10, left: 120, right: 10, bottom: 50};
-    let width = 1500 - margin.left - margin.right
-    let height = 600 - margin.top - margin.bottom;
+    let width = 1200 - margin.left - margin.right;
+    let height = 500 - margin.top - margin.bottom;
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
 
@@ -274,11 +245,12 @@ function myVis(data, us){
       .style('flex-direction', 'column')
       .selectAll('.drop-down')
       .data(['X Axis', 'Y Axis'])
-      .join('div');
+      .join('div')
+      .style('align-self', 'center')
     dropdowns
       .append('div')
       .text(d => d);
-  
+    
     // Render plot with selections from dropdown
     dropdowns
       .append('select')
@@ -307,7 +279,7 @@ function myVis(data, us){
       .attr('height', height)
       .attr('width', width)
       .append('g')
-      .attr('transform', `translate(${margin.left}, ${margin.top})`);
+      .attr('transform', `translate(${margin.left + 170}, ${margin.top})`);
     const xAxis = svg
       .append('g')
       .attr('class', 'x-axis')
