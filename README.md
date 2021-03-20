@@ -16,7 +16,7 @@ https://www.ers.usda.gov/data-products/county-typology-codes/
 https://unpkg.com/us-atlas@3/counties-10m.json
 
 
-### Code Inspiration
+## Code Inspiration
 
 Basic Chloropleth: https://www.d3-graph-gallery.com/graph/choropleth_basic.html 
 
