@@ -1,8 +1,7 @@
-import {select} from 'd3-selection';
 import './main.css';
 import * as d3 from "d3";
+import {select} from 'd3-selection';
 import * as topojson from "topojson-client";
-import { count, dsvFormat, schemeGnBu } from 'd3';
 
 Promise.all([
   d3.json("https://unpkg.com/us-atlas@3/counties-10m.json"),
@@ -59,6 +58,7 @@ function myVis(data, us){
     return matchedRow;
   }
 
+  // Handle updating map for checked boxes
   d3.selectAll('.checkbox')
     .on("change", function(d) {
       // Filter data according to selected option
@@ -81,8 +81,10 @@ function myVis(data, us){
     return dataFilter
   }
 
+  // Render plots initially
   renderMap(data);
   renderScatter(data, false);
+
 
   function renderMap(data) {
 
@@ -174,7 +176,6 @@ function myVis(data, us){
       })
       .on('mouseout', function(d) {
         tooltip.call(callout, null)
-  
         d3.select(d.target)
           .attr("stroke", "none")
           .lower();
@@ -206,11 +207,12 @@ function myVis(data, us){
         });
   }
 
+
   function renderScatter(data, update) {
 
     // Constraints for scatter
     const margin = {top: 10, left: 120, right: 10, bottom: 50};
-    let width = 750 - margin.left - margin.right;
+    let width = 950 - margin.left - margin.right;
     let height = 500 - margin.top - margin.bottom;
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
@@ -281,7 +283,12 @@ function myVis(data, us){
       .attr('class', 'x-axis')
       .attr('transform', `translate(0, ${plotHeight})`);
     const yAxis = svg.append('g').attr('class', 'y-axis');
+    const tooltip = svgContainer
+      .append('div')
+      .attr('id', 'tooltip')
+      .style('display', 'none');
     
+    // Add text on the right
     d3.select('#scatter')
       .append('div')
       .append('p')
@@ -311,6 +318,7 @@ function myVis(data, us){
 
     renderPlot();
   
+
     function renderPlot() {
 
       // Define transition
@@ -346,6 +354,21 @@ function myVis(data, us){
         .style('opacity', 0.5)
         .style('stroke', 'white')
         .attr('r', 3)
+        .on('mouseenter', function(d, x) {
+          var point = d.fromElement.__data__
+          if (point) {
+            tooltip
+              .style('display', 'block')
+              .style("font", "10px Avenir")
+              .style('left', `${d.offsetX}px`)
+              .style('top', `${d.offsetY}px`)
+              .text([point.County + ', ' + point.State + 
+              ' (' + point[xCol] + ', ' + point[yCol] + ')'])
+          }
+        })
+        .on('mouseleave', function(d, x) {
+          tooltip.style('display', 'none').text('');
+        });
       
       xAxis.call(d3.axisBottom(xScale));
       yAxis.call(d3.axisLeft(yScale));

@@ -1,58 +1,25 @@
-# Dynamic Project Scaffold
+# Economic Sector Depenndency
 
-In this folder I've provided an example project that enables you to use modern javascript tooling with as little effort as possible. This scaffold includes
+This project produces two interactive data visualizations that allow users to explore the landscape of U.S. economic sector dependency and it's relationship to various socioeconomic factors.
 
-- a dev server that combines javascript modules and presents them to the browser. This comes with autoreload for free! It's great.
-- linters and autoformaters so you'll be able to check if your writing well styled javascript code. I have some pretty strong linting in here. You can disable them if you want, but you'll be judged.
+## Data Domains Sources
 
+### Socioeconomic Factors
+U.S. Census Bureau American Community Survey (ACS)
+https://www.census.gov/programs-surveys/acs/
 
+### Sector Dependencies
+USDA Economic Research Service (ERS) County Typology Codes
+https://www.ers.usda.gov/data-products/county-typology-codes/ 
 
-## Setup
-
-Make sure you have npm/node/yarn installed.
-
-```sh
-npm install
-# then
-npm run start
-
-# or if yarn-ing
-yarn
-# then
-yarn start
-```
+### Geographic Data
+https://unpkg.com/us-atlas@3/counties-10m.json
 
 
-You will need to be explicit about your imports, eg
-```js
-import {functionFromModule} from 'target-module';
-```
+### Code Inspiration
 
-In this scaffold I have not installed any d3 packages. Some helpful ones (read the ones I usually end up using) are d3-selection, d3-scale, and d3-shape. To add one of these packages just do
+Basic Chloropleth: https://www.d3-graph-gallery.com/graph/choropleth_basic.html 
 
-```sh
-npm install --save PACKAGENAME
+Chloropleth with Tooltip: https://observablehq.com/@duynguyen1678/choropleth-with-tooltip
 
-# or if yarning
-yarn add PACKAGENAME
-```
-
-
-## Usage
-
-Development:
-
-Step 1: Do all of your work in src. There is no step 2.
-
-Production:
-
-There are currently two easy ways to deploy this scaffold onto the internet.  
-
-### Netlify
-
-Netlify is an excellent company that tries to make the dev process as easy as possible. The way you deploy this scaffold there is get an account, start a new project, point it to the relevant github folder (that contains just this scaffold!), set the build command to be 'yarn build' and that's it.
-
-
-### GH Pages
-
-gh-pages is a wonderful resource for doing web-development, and allows you to have classy YOU_PERSONAL_DOMAIN/projectname type links. You can deploy this scaffold there by running 'yarn build' in your command line, commiting the modified file, and push to github. If you've configured your projects settings correct it should all just work out.
+Bubble Map with Filter Button: https://www.d3-graph-gallery.com/graph/bubblemap_buttonControl.html

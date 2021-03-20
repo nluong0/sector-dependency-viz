@@ -6,17 +6,18 @@ a {
 html,
 body {
   font-family: "Avenir";
-  margin: 10p;
+  margin: 10;
   padding: 10;
   text-align: left;
   color: #333;
 }
 
 p {
-  margin-top: 50px;
-  margin-bottom: 50px;
+  margin-top: 30px;
+  margin-bottom: 30px;
   margin-right: 100px;
   margin-left: 75px;
+  font-size: 11.5pt;
 }
 
 h1, h2, h3, h4, h5 {

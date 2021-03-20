@@ -13,15 +13,38 @@
         policy-relevant themes” for each county in the United States. Economic 
         dependence types include “farming, mining, manufacturing, Federal/State 
         government, recreation, and non-specialized counties”. Below, you'll be able to explore
-        which U.S. counties are dependent on which sectors as well as how the 
+        which U.S. counties were dependent on which sectors in 2015 as well as how the 
         socioeconomic variables for counties in each sector-depenency group 
         interact.</p>
     </div>
 
     <div>
+      <h3>Definitions</h3>
+      <p>
+        A <b>manufacturing-dependent</b> county is one where manufacturing accounted for 23% or 
+        more of the county's earnings or 16% of the employment averaged over 2010-12.<br>
+        <br>
+        A <b>farming-dependent</b> county is one where farming accounted for at 25% or more of 
+        the county's earnings or 16% or more of the employment averaged over 2010-2012.<br>
+        <br>
+        A <b>mining-dependent county</b> is one where mining accounted for 13% or more of the 
+        county's earnings or 8% of the employment averaged over 2010-12.<br>
+        <br>
+        A <b>recreation-dependent county</b> is determined by percentage of wage and salary 
+        employment in entertainment and recreation, accommodations, eating and drinking 
+        places, and real estate as a percentage of all employment reported by the Bureau 
+        of Economic Analysis; percentage of total personal income reported for these same 
+        categories by the Bureau of Economic Analysis; and percentage of vacant housing 
+        units intended for seasonal or occasional use reported in the 2010 Census.<br>
+        <br>
+        A <b>nonspecialized</b> county is one does not fall into any of the above categories.
+      </p>
+    </div>
+
+    <div>
       <h3>See Where Sector-Dependent Counties Are</h3>
     </div>
-    <div style="text-align:center">
+    <div style="text-align:center" style="margin-top:30px">
       <input type="checkbox" class="checkbox" value="Farming" checked><label>Farming</label>
       <input type="checkbox" class="checkbox" value="Government" checked><label>Government</label>
       <input type="checkbox" class="checkbox" value="Manufacturing" checked><label>Manufacturing</label>
@@ -35,5 +58,21 @@
       <h3>See How Different Socioeconomic Variables Behave</h3>
     </div>
     <div id="scatter"></div>
+
+    <div>
+      <h3>Data Sources</h3>
+      <p>
+        Socioeconomic Factors<br>
+        <a href=https://www.census.gov/programs-surveys/acs>U.S. Census Bureau American Community Survey (ACS) 5-Year Estimates</a><br>
+        Note: Accessed through Census API<br>
+        <br>
+        Sector Dependencies<br>
+        <a href=https://www.ers.usda.gov/webdocs/DataFiles/48652/2015CountyTypologyCodes.csv?v=1427.4>USDA Economic Research Service (ERS) County Typology Codes (Direct Download)</a><br>
+        <br>
+        Geographic Data<br>
+        <a href="https://unpkg.com/us-atlas@3/counties-10m.json">County Boundaries (Direct Download)</a><br>
+      </p>
+    </div>
+
   </body>
 </html>
