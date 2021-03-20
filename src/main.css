@@ -12,9 +12,16 @@ body {
   color: #333;
 }
 
+p {
+  margin-top: 50px;
+  margin-bottom: 50px;
+  margin-right: 75px;
+  margin-left: 75px;
+}
+
 h1, h2, h3, h4, h5 {
   padding: 10;
-  margin: 10;
+  margin-left: 20px;
 }
 
 #map {
@@ -28,7 +35,7 @@ h1, h2, h3, h4, h5 {
 #scatter {
   display: flex;
   align-items: center;
-  padding: 0;
+  padding: 10;
   display: flex;
   flex-direction: row;
 }

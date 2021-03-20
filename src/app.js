@@ -150,10 +150,6 @@ function myVis(data, us){
       .selectAll(".county")
       .on("mouseover", function(d) {
 
-        console.log('this', this)
-        console.log('d.target.__data__', d.target.__data__)
-        console.log('d.target.__data__.id', d.target.__data__.id)
-
         let matchedRow = findSectorData(data, d.target.__data__.id);
         var displayText = 'No Data';
     
@@ -214,7 +210,7 @@ function myVis(data, us){
 
     // Constraints for scatter
     const margin = {top: 10, left: 120, right: 10, bottom: 50};
-    let width = 1200 - margin.left - margin.right;
+    let width = 750 - margin.left - margin.right;
     let height = 500 - margin.top - margin.bottom;
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
@@ -222,7 +218,7 @@ function myVis(data, us){
     // Remove elements and redraw if updating for sector
     if (update) {
       d3.selectAll("#scatter")
-      .select("div")
+      .selectAll("div")
       .remove();
 
     d3.selectAll("#scatter")
@@ -279,15 +275,20 @@ function myVis(data, us){
       .attr('height', height)
       .attr('width', width)
       .append('g')
-      .attr('transform', `translate(${margin.left + 170}, ${margin.top})`);
+      .attr('transform', `translate(${margin.left + 20}, ${margin.top})`);
     const xAxis = svg
       .append('g')
       .attr('class', 'x-axis')
       .attr('transform', `translate(0, ${plotHeight})`);
     const yAxis = svg.append('g').attr('class', 'y-axis');
-    const tooltip = svgContainer
-    .append('div')
-    .attr('id', 'scatter-tooltip');
+    
+    d3.select('#scatter')
+      .append('div')
+      .append('p')
+      .text('This scatterplot shows the relationship \
+            in your choice of variables. Selecting different \
+            combinations of sectors from the map above will filter \
+            this chart to only display data points for those counties.')
     
     // Adjust axes
     svg
